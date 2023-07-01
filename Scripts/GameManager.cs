@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text playerTurnText;
     [SerializeField] Button backButton;
     [SerializeField] Button restartButton;
+    [SerializeField] Button[] chooseCharacter;
+    public int character;
+    [SerializeField] GameObject characterPanel;
 
     private void Start()
     {
@@ -29,6 +32,20 @@ public class GameManager : MonoBehaviour
         backButton.onClick.AddListener(() =>
         {
             SceneManager.LoadScene("StartScene");
+        });
+        chooseCharacter[0].onClick.AddListener(() =>
+        {
+            //Do something
+            character = 1;
+            characterPanel.SetActive(false);
+        });
+        chooseCharacter[1].onClick.AddListener(() =>
+        {
+            //Do something
+            character = 2;
+            characterPanel.SetActive(false);
+            gridController.GameUpdate();
+            gridController.ComputerCall();
         });
     }
 

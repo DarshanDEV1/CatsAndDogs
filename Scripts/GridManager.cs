@@ -30,6 +30,7 @@ public class GameState : GameStateCall
                     Debug.Log("Dog Found...");
                     _game_Manager.playersScores[0]--;
                     _button_Clicked_Image.enabled = true;
+                    if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
                     _button_Clicked_Image.color = Color.red;
                 }
             }
@@ -42,6 +43,7 @@ public class GameState : GameStateCall
                     Debug.Log("Cat Found...");
                     _game_Manager.playersScores[1]--;
                     _button_Clicked_Image.enabled = true;
+                    if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
                     _button_Clicked_Image.color = Color.red;
                 }
             }
@@ -61,9 +63,12 @@ public class GridManager : MonoBehaviour
     public Button[,] buttons;
     public Button submitButton;
     [SerializeField] GameObject startGamePanel;
+    public string gameMode;
 
     private void Start()
     {
+        gameMode = PlayerPrefs.GetString("GameMode");
+        Debug.Log(gameMode);
         gameManager = FindObjectOfType<GameManager>();
         CreateGrid();
         CheckPlayers();
@@ -97,27 +102,94 @@ public class GridManager : MonoBehaviour
 
     void ButtonClicked(int row, int col)
     {
-        Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
-        if (gameManager.isClicked && gameManager.isGameStarted) return;
+        if(gameMode == "PVP")
+        {
+            Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+            if (gameManager.isClicked && gameManager.isGameStarted) return;
 
-        if (gameManager.turn && gameManager.CheckTurn(1))
-        {
-            if (image.sprite != null) return;
-            image.sprite = catNDog_Sprites[0]; // Player 1 places dog characters
-            gameManager.playerCharacterPlacement[0]--;
+            if (gameManager.turn && gameManager.CheckTurn(1))
+            {
+                if (image.sprite != null) return;
+                image.sprite = catNDog_Sprites[0]; // Player 1 places dog characters
+                gameManager.playerCharacterPlacement[0]--;
+            }
+            else if (!gameManager.turn && gameManager.CheckTurn(2))
+            {
+                if (image.sprite != null) return;
+                image.sprite = catNDog_Sprites[1]; // Player 2 places cat characters
+                gameManager.playerCharacterPlacement[1]--;
+            }
+            if (!gameManager.isGameStarted)
+                CheckPlayers();
+            else
+            {
+                GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                /*if (!gameManager.isClicked) gameManager.isClicked = true;*/
+            }
         }
-        else if (!gameManager.turn && gameManager.CheckTurn(2))
+        else if(gameMode == "PVC")
         {
-            if (image.sprite != null) return;
-            image.sprite = catNDog_Sprites[1]; // Player 2 places cat characters
-            gameManager.playerCharacterPlacement[1]--;
-        }
-        if (!gameManager.isGameStarted)
-            CheckPlayers();
-        else
-        {
-            GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-            if (!gameManager.isClicked) gameManager.isClicked = true;
+            //Add The AI
+            if(gameManager.character == 1)
+            {
+                //In case of cat selected
+                if(gameManager.turn)
+                {
+                    //Player
+                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    if (gameManager.isClicked && gameManager.isGameStarted) return;
+
+                    if (gameManager.CheckTurn(1))
+                    {
+                        if (image.sprite != null) return;
+                        image.sprite = catNDog_Sprites[0]; // Player places cat characters
+                        gameManager.playerCharacterPlacement[0]--;
+                    }
+
+                    if (!gameManager.isGameStarted)
+                        CheckPlayers();
+                    else
+                    {
+                        GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                        /*if (!gameManager.isClicked) gameManager.isClicked = true;*/
+                    }
+                }
+                else
+                {
+                    //Computer
+                    //ComputerPlayer(2);
+                }
+            }
+            else if(gameManager.character == 2)
+            {
+                //In case of dog selected
+                if (gameManager.turn)
+                {
+                    //Computer
+                    //ComputerPlayer(1);
+                }
+                else
+                {
+                    //Player
+                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    if (gameManager.isClicked && gameManager.isGameStarted) return;
+
+                    if (gameManager.CheckTurn(2))
+                    {
+                        if (image.sprite != null) return;
+                        image.sprite = catNDog_Sprites[0]; // Player places cat characters
+                        gameManager.playerCharacterPlacement[0]--;
+                    }
+
+                    if (!gameManager.isGameStarted)
+                        CheckPlayers();
+                    else
+                    {
+                        GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                        if (!gameManager.isClicked) gameManager.isClicked = true;
+                    }
+                }
+            }
         }
     }
 
@@ -199,7 +271,6 @@ public class GridManager : MonoBehaviour
             if (gameManager.playerCharacterPlacement[0] > 0 || gameManager.playerCharacterPlacement[1] > 0)
             {
                 gameManager.turn = !gameManager.turn;
-                //CheckPlayers();
             }
             else
             {
@@ -210,16 +281,123 @@ public class GridManager : MonoBehaviour
                     gameManager.turn = !gameManager.turn;
                 }
             }
-            CheckPlayers();
-            TurnBasedPlacement();
-            gameManager.GameWon();
-            gameManager.TurnTextSwitch();
-            gameManager.isClicked = false;
+            GameUpdate();
+            ComputerCall();
         });
     }
-
-    private void ComputerPlayer(int player)
+    private bool IsEmpty(int row, int col)
     {
-        //Write the code to create the AI player
+        Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+        return image.sprite == null;
+    }
+    private void ComputerPlayer(int playerNumber)
+    {
+        if (playerNumber == 1)
+        {
+            // Logic for computer player assuming player one's position
+
+            // Beginning stage
+            if (!gameManager.isGameStarted && gameManager.turn)
+            {
+                // Place three characters
+                for (int i = 0; i < 3; i++)
+                {
+                    int row = Random.Range(0, 5);
+                    int col = Random.Range(0, 5);
+                    while (!IsEmpty(row, col))
+                    {
+                        row = Random.Range(0, 5);
+                        col = Random.Range(0, 5);
+                    }
+                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    if (gameManager.turn && gameManager.CheckTurn(2))
+                    {
+                        //if (image.sprite != null) continue;
+                        image.sprite = catNDog_Sprites[0]; // Player 2 places dog characters
+                        gameManager.playerCharacterPlacement[0]--;
+                        Debug.Log(row.ToString() + " " + col.ToString());
+                        if (!gameManager.isGameStarted)
+                            CheckPlayers();
+                    }
+                }
+
+                // Simulate clicking the submit button
+                StartCoroutine(SimulateSubmitButtonClick());
+
+                // Update game state and turn
+                gameManager.turn = !gameManager.turn;
+                GameUpdate();
+                CheckPlayers();
+            }
+        }
+        else if (playerNumber == 2)
+        {
+            // Logic for computer player assuming player two's position
+            // Beginning stage
+            if (!gameManager.isGameStarted && !gameManager.turn)
+            {
+                // Place three characters
+                for (int i = 0; i < 3; i++)
+                {
+                    int row = Random.Range(6, 10);
+                    int col = Random.Range(0, 5);
+                    while (!IsEmpty(row, col))
+                    {
+                        row = Random.Range(6, 10);
+                        col = Random.Range(0, 5);
+                    }
+                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    if (!gameManager.turn && gameManager.CheckTurn(2))
+                    {
+                        //if (image.sprite != null) continue;
+                        image.sprite = catNDog_Sprites[1]; // Player 2 places dog characters
+                        gameManager.playerCharacterPlacement[1]--;
+                        Debug.Log(row.ToString() + " " + col.ToString());
+                        if (!gameManager.isGameStarted)
+                            CheckPlayers();
+                    }
+                }
+
+                // Simulate clicking the submit button
+                StartCoroutine(SimulateSubmitButtonClick());
+
+                // Update game state and turn
+                gameManager.turn = !gameManager.turn;
+                GameUpdate();
+            }
+        }
+    }
+
+    private IEnumerator SimulateSubmitButtonClick()
+    {
+        yield return new WaitForSeconds(1f); // Adjust the delay as needed
+
+        // Simulate clicking the submit button
+        submitButton.onClick.Invoke();
+    }
+
+    public void ComputerCall()
+    {
+        if (gameMode == "PVC")
+        {
+            //Do something
+            if (gameManager.character == 2 && gameManager.turn)
+            {
+                ComputerPlayer(1);
+            }
+            else if (gameManager.character == 1 && !gameManager.turn)
+            {
+                ComputerPlayer(2);
+            }
+        }
+    }
+
+    public void GameUpdate()
+    {
+        CheckPlayers();
+        TurnBasedPlacement();
+        gameManager.GameWon();
+        gameManager.TurnTextSwitch();
+        gameManager.isClicked = false;
     }
 }
