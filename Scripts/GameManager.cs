@@ -3,20 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public bool turn = true;
     public bool isGameStarted = false;
+    public bool isClicked = false;
     public int[] playerCharacterPlacement = new int[2] { 3, 3 };
     [SerializeField] GridManager gridController;
     public int[]playersScores = new int[2] { 3, 3 };
     [SerializeField] GameObject winPanel;
+    [SerializeField] TMP_Text playerTurnText;
+    [SerializeField] Button backButton;
+    [SerializeField] Button restartButton;
 
     private void Start()
     {
         CheckSubmitButtonInteractable();
         GameWon();
+        restartButton.onClick.AddListener(() =>
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        });
+        backButton.onClick.AddListener(() =>
+        {
+            SceneManager.LoadScene("StartScene");
+        });
     }
 
     public bool CheckTurn(int player)
@@ -84,6 +97,18 @@ public class GameManager : MonoBehaviour
         else
         {
             winPanel.SetActive(false);
+        }
+    }
+
+    public void TurnTextSwitch()
+    {
+        if(turn)
+        {
+            playerTurnText.text = "Turn : Player 1";
+        }
+        else
+        {
+            playerTurnText.text = "Turn : Player 2";
         }
     }
 }

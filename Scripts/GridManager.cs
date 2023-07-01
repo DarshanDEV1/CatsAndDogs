@@ -25,7 +25,7 @@ public class GameState : GameStateCall
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Dog_0" && _game_Manager.playersScores[0] > 0)
+                if (_sprite.name == "Dog_0" && _game_Manager.playersScores[0] > 0 && _button_Clicked_Image.color != Color.red)
                 {
                     Debug.Log("Dog Found...");
                     _game_Manager.playersScores[0]--;
@@ -37,7 +37,7 @@ public class GameState : GameStateCall
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Cat_0" && _game_Manager.playersScores[1] > 0)
+                if (_sprite.name == "Cat_0" && _game_Manager.playersScores[1] > 0 && _button_Clicked_Image.color != Color.red)
                 {
                     Debug.Log("Cat Found...");
                     _game_Manager.playersScores[1]--;
@@ -69,6 +69,7 @@ public class GridManager : MonoBehaviour
         CheckPlayers();
         ButtonClicksDetection();
         TurnBasedPlacement();
+        gameManager.TurnTextSwitch();
     }
     void CreateGrid()
     {
@@ -88,8 +89,7 @@ public class GridManager : MonoBehaviour
                 button.name = "BTN: " + buttonRow.ToString() + " " + buttonCol.ToString();
                 button.onClick.AddListener(() =>
                 {
-                    ButtonClicked(buttonRow, buttonCol);
-                    //Debug.Log("Button clicked: " + buttonRow.ToString() + " " + buttonCol.ToString());
+                     ButtonClicked(buttonRow, buttonCol);
                 });
             }
         }
@@ -98,6 +98,7 @@ public class GridManager : MonoBehaviour
     void ButtonClicked(int row, int col)
     {
         Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+        if (gameManager.isClicked && gameManager.isGameStarted) return;
 
         if (gameManager.turn && gameManager.CheckTurn(1))
         {
@@ -116,6 +117,7 @@ public class GridManager : MonoBehaviour
         else
         {
             GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+            if (!gameManager.isClicked) gameManager.isClicked = true;
         }
     }
 
@@ -130,13 +132,17 @@ public class GridManager : MonoBehaviour
                 Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
                 Sprite sprite = image.sprite;
 
-                if (sprite == currentPlayerSprite)
+                if (sprite == currentPlayerSprite && image.color != Color.red)
                 {
                     image.enabled = true;
                 }
-                else
+                else if(sprite != currentPlayerSprite && image.color != Color.red)
                 {
                     image.enabled = false;
+                }
+                else if(sprite == currentPlayerSprite && image.color == Color.red)
+                {
+                    image.enabled = true;
                 }
             }
         }
@@ -181,7 +187,7 @@ public class GridManager : MonoBehaviour
         startGamePanel.SetActive(true);
         gameManager.isGameStarted = true;
         startGamePanel.GetComponent<Animator>().Play("StartAnimation");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         startGamePanel.SetActive(false);
     }
 
@@ -207,6 +213,13 @@ public class GridManager : MonoBehaviour
             CheckPlayers();
             TurnBasedPlacement();
             gameManager.GameWon();
+            gameManager.TurnTextSwitch();
+            gameManager.isClicked = false;
         });
+    }
+
+    private void ComputerPlayer(int player)
+    {
+        //Write the code to create the AI player
     }
 }
