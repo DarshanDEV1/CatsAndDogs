@@ -24,6 +24,12 @@ public class PunGameManager : MonoBehaviour
     [SerializeField] Button[] chooseCharacter;
     public int character;
     [SerializeField] GameObject characterPanel;
+    [SerializeField] GameObject player;
+
+    private void Awake()
+    {
+        PhotonNetwork.Instantiate(player.name, transform.position, Quaternion.identity);
+    }
 
     private void Start()
     {
