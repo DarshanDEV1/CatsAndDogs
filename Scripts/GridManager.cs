@@ -124,11 +124,7 @@ public class GridManager : MonoBehaviour
             else
             {
                 GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-<<<<<<< HEAD
                 if (!gameManager.isClicked && image.color != Color.red) gameManager.isClicked = true;
-=======
-                /*if (!gameManager.isClicked) gameManager.isClicked = true;*/
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
             }
         }
         else if(gameMode == "PVC")
@@ -155,11 +151,7 @@ public class GridManager : MonoBehaviour
                     else
                     {
                         GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-<<<<<<< HEAD
                         if (!gameManager.isClicked && image.color != Color.red) gameManager.isClicked = true;
-=======
-                        /*if (!gameManager.isClicked) gameManager.isClicked = true;*/
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                     }
                 }
                 else
@@ -185,13 +177,8 @@ public class GridManager : MonoBehaviour
                     if (gameManager.CheckTurn(2))
                     {
                         if (image.sprite != null) return;
-<<<<<<< HEAD
                         image.sprite = catNDog_Sprites[1]; // Player places cat characters
                         gameManager.playerCharacterPlacement[1]--;
-=======
-                        image.sprite = catNDog_Sprites[0]; // Player places cat characters
-                        gameManager.playerCharacterPlacement[0]--;
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                     }
 
                     if (!gameManager.isGameStarted)
@@ -305,10 +292,7 @@ public class GridManager : MonoBehaviour
     }
     private void ComputerPlayer(int playerNumber)
     {
-<<<<<<< HEAD
         Image image;
-=======
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
         if (playerNumber == 1)
         {
             // Logic for computer player assuming player one's position
@@ -326,21 +310,12 @@ public class GridManager : MonoBehaviour
                         row = Random.Range(0, 5);
                         col = Random.Range(0, 5);
                     }
-<<<<<<< HEAD
                     image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
                     if (gameManager.turn && gameManager.CheckTurn(1))
-=======
-                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
-                    if (gameManager.turn && gameManager.CheckTurn(2))
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                     {
                         //if (image.sprite != null) continue;
                         image.sprite = catNDog_Sprites[0]; // Player 2 places dog characters
                         gameManager.playerCharacterPlacement[0]--;
-<<<<<<< HEAD
-=======
-                        Debug.Log(row.ToString() + " " + col.ToString());
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                         if (!gameManager.isGameStarted)
                             CheckPlayers();
                     }
@@ -354,7 +329,6 @@ public class GridManager : MonoBehaviour
                 GameUpdate();
                 CheckPlayers();
             }
-<<<<<<< HEAD
 
             //GamePlay stage
             if(gameManager.isGameStarted && gameManager.turn)
@@ -370,8 +344,6 @@ public class GridManager : MonoBehaviour
                 gameManager.turn = !gameManager.turn;
                 GameUpdate();
             }
-=======
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
         }
         else if (playerNumber == 2)
         {
@@ -389,20 +361,12 @@ public class GridManager : MonoBehaviour
                         row = Random.Range(6, 10);
                         col = Random.Range(0, 5);
                     }
-<<<<<<< HEAD
                     image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
-=======
-                    Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                     if (!gameManager.turn && gameManager.CheckTurn(2))
                     {
                         //if (image.sprite != null) continue;
                         image.sprite = catNDog_Sprites[1]; // Player 2 places dog characters
                         gameManager.playerCharacterPlacement[1]--;
-<<<<<<< HEAD
-=======
-                        Debug.Log(row.ToString() + " " + col.ToString());
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
                         if (!gameManager.isGameStarted)
                             CheckPlayers();
                     }
@@ -415,7 +379,6 @@ public class GridManager : MonoBehaviour
                 gameManager.turn = !gameManager.turn;
                 GameUpdate();
             }
-<<<<<<< HEAD
 
             //GamePlay stage
             if (gameManager.isGameStarted && !gameManager.turn)
@@ -431,8 +394,6 @@ public class GridManager : MonoBehaviour
                 gameManager.turn = !gameManager.turn;
                 GameUpdate();
             }
-=======
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
         }
     }
 
@@ -462,13 +423,8 @@ public class GridManager : MonoBehaviour
 
     public void GameUpdate()
     {
-<<<<<<< HEAD
         CheckPlayers();// To hide the players
         TurnBasedPlacement();// To make the buttons interactable or non interactable
-=======
-        CheckPlayers();
-        TurnBasedPlacement();
->>>>>>> e596227e5e222ef92b1f758bcb1eacc1bac30b8b
         gameManager.GameWon();
         gameManager.TurnTextSwitch();
         gameManager.isClicked = false;

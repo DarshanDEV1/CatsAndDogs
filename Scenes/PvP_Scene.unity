@@ -1063,6 +1063,9 @@ MonoBehaviour:
   playerTurnText: {fileID: 1713303017}
   backButton: {fileID: 1534116779}
   restartButton: {fileID: 1047451722}
+  chooseCharacter: []
+  character: 0
+  characterPanel: {fileID: 0}
 --- !u!1 &551288325
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,6 +1123,7 @@ MonoBehaviour:
   gameManager: {fileID: 0}
   submitButton: {fileID: 737614757}
   startGamePanel: {fileID: 1362038153}
+  gameMode: 
 --- !u!114 &551288328
 MonoBehaviour:
   m_ObjectHideFlags: 0

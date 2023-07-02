@@ -5,11 +5,16 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class StartManager : MonoBehaviour
+using Photon;
+using Photon.Pun;
+using Photon.Realtime;
+
+public class StartManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Button playerVPlayer;
     [SerializeField] Button playerVComputer;
     [SerializeField] Button onlinePlayerVPlayer;
+    [SerializeField] GameObject multiplayerConnectingPanel;
 
     private void Start()
     {
@@ -27,12 +32,24 @@ public class StartManager : MonoBehaviour
         onlinePlayerVPlayer.onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "OPVP");
-            LoadScene("Online_PvP_Scene");
+            PhotonNetwork.ConnectUsingSettings();
+            multiplayerConnectingPanel.SetActive(true);
+            //LoadScene("Online_PvP_Scene");
         });
     }
 
     private void LoadScene(string _scene_Name)
     {
         SceneManager.LoadScene(_scene_Name);
+    }
+
+    public override void OnConnectedToMaster()
+    {
+        PhotonNetwork.JoinOrCreateRoom("DemoRoom", new RoomOptions { MaxPlayers = 2 }, null);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        PhotonNetwork.LoadLevel("Online_PvP_Scene");
     }
 }

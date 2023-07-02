@@ -2232,7 +2232,7 @@ MonoBehaviour:
   chooseCharacter:
   - {fileID: 1991424368}
   - {fileID: 2109099119}
-  characters: 0
+  character: 0
   characterPanel: {fileID: 2056638243}
 --- !u!1 &4542698542165578888
 GameObject:
