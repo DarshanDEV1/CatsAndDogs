@@ -9,27 +9,37 @@ using Photon;
 using Photon.Pun;
 using Photon.Realtime;
 
+using DT_UI;
+
 public class StartManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Button playerVPlayer;
     [SerializeField] Button playerVComputer;
     [SerializeField] Button onlinePlayerVPlayer;
     [SerializeField] GameObject multiplayerConnectingPanel;
+    [SerializeField] UIManager _uiManager;
+
+    KeyValue keyvalue = new KeyValue();
+
+    private void Awake()
+    {
+        _uiManager = FindObjectOfType<UIManager>();
+    }
 
     private void Start()
     {
         PlayerPrefs.GetString("GameMode", "Default");
-        playerVPlayer.onClick.AddListener(() =>
+        _uiManager.GetButton(keyvalue.PlayerVsPlayer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "PVP");
             LoadScene("PvP_Scene");
         });
-        playerVComputer.onClick.AddListener(() =>
+        _uiManager.GetButton(keyvalue.PlayerVsComputer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "PVC");
             LoadScene("PvComp_Scene");
         });
-        onlinePlayerVPlayer.onClick.AddListener(() =>
+        _uiManager.GetButton(keyvalue.OnlinePlayerVsPlayer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "OPVP");
             PhotonNetwork.ConnectUsingSettings();

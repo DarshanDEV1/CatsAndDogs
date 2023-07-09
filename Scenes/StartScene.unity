@@ -537,6 +537,7 @@ GameObject:
   m_Component:
   - component: {fileID: 638865138}
   - component: {fileID: 638865139}
+  - component: {fileID: 638865140}
   m_Layer: 0
   m_Name: StartManager
   m_TagString: Untagged
@@ -574,6 +575,27 @@ MonoBehaviour:
   playerVComputer: {fileID: 659988852}
   onlinePlayerVPlayer: {fileID: 1011553258}
   multiplayerConnectingPanel: {fileID: 1286489914}
+  _uiManager: {fileID: 638865140}
+--- !u!114 &638865140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638865137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60fea88ebcfaaa4cb71f43ccc3652e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiButton:
+  - key: PvP
+    button: {fileID: 175186960}
+  - key: PvC
+    button: {fileID: 659988852}
+  - key: OPvC
+    button: {fileID: 1011553258}
+  uiInputField: []
 --- !u!1 &659672977
 GameObject:
   m_ObjectHideFlags: 0
