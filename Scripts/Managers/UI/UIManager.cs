@@ -8,6 +8,8 @@ namespace DT_UI
     [System.Serializable]
     public class UIManager : MonoBehaviour
     {
+        #region VARIABLE_AND_OBJECT_DECLARATIONS
+
         [Header("Button References")]
         [SerializeField] private List<UiButton> uiButton = new List<UiButton>();
         private Dictionary<string, Button> uiButtonDictionary = new Dictionary<string, Button>();
@@ -16,11 +18,20 @@ namespace DT_UI
         [SerializeField] private List<UiInputField> uiInputField = new List<UiInputField>();
         private Dictionary<string, TMP_InputField> uiInputFieldDictionary = new Dictionary<string, TMP_InputField>();
 
+        [Header("GameObjects References")]
+        [SerializeField] private List<UiGameObject> uiGameObject = new List<UiGameObject>();
+        private Dictionary<string, GameObject> uiGameObjectDictionary = new Dictionary<string, GameObject>();
+
+        #endregion
+
         private void Awake()
         {
             UpdateButtonDictionary();
             UpdateInputFieldDictionary();
+            UpdateGameObjectDictionary();
         }
+
+        #region OBJECT_METHODS
 
         private void UpdateButtonDictionary()
         {
@@ -46,6 +57,22 @@ namespace DT_UI
             }
         }
 
+        private void UpdateGameObjectDictionary()
+        {
+            uiGameObjectDictionary.Clear();
+            foreach(UiGameObject uiReference in uiGameObject)
+            {
+                if(uiReference.gameObject != null && !uiGameObjectDictionary.ContainsKey(uiReference.key))
+                {
+                    uiGameObjectDictionary.Add(uiReference.key, uiReference.gameObject);
+                }
+            }
+        }
+
+        #endregion
+
+        #region BUTTON_CALLBACKS
+
         public Button GetButton(string key)
         {
             if (uiButtonDictionary.ContainsKey(key))
@@ -62,7 +89,19 @@ namespace DT_UI
             }
             return null;
         }
+
+        public GameObject GetGameObject(string key)
+        {
+            if(uiGameObjectDictionary.ContainsKey(key))
+            {
+                return uiGameObjectDictionary[key];
+            }
+            return null;
+        }
+        #endregion
     }
+
+    #region STRUCTURES
 
     [System.Serializable]
     public struct UiButton
@@ -77,4 +116,13 @@ namespace DT_UI
         public string key;
         public TMP_InputField inputField;
     }
+
+    [System.Serializable]
+    public struct UiGameObject
+    {
+        public string key;
+        public GameObject gameObject;
+    }
+
+    #endregion
 }

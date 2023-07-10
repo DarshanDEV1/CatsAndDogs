@@ -13,9 +13,6 @@ using DT_UI;
 
 public class StartManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] Button playerVPlayer;
-    [SerializeField] Button playerVComputer;
-    [SerializeField] Button onlinePlayerVPlayer;
     [SerializeField] GameObject multiplayerConnectingPanel;
     [SerializeField] UIManager _uiManager;
 

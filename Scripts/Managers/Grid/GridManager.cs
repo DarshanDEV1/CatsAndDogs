@@ -102,7 +102,7 @@ public class GridManager : MonoBehaviour
 
     void ButtonClicked(int row, int col)
     {
-        if(gameMode == "PVP")
+        if(gameMode == "PVP") //  This condition works only when the game mode is player versus player
         {
             Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
             if (gameManager.isClicked && gameManager.isGameStarted) return;
