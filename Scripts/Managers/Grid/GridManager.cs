@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public abstract class GameStateCall : GridManager
 {
@@ -21,7 +22,7 @@ public class GameState : GameStateCall
         //throw new System.NotImplementedException();
         if (_game_State)
         {
-            if(_player_Turn)
+            if (_player_Turn)
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
@@ -55,8 +56,12 @@ public class GameState : GameStateCall
     }
 }
 
+
+[System.Serializable]
 public class GridManager : MonoBehaviour
 {
+    #region DECLARATIONS
+
     public Button buttonPrefab;
     public Sprite[] catNDog_Sprites;
     public GameManager gameManager;
@@ -64,6 +69,9 @@ public class GridManager : MonoBehaviour
     public Button submitButton;
     [SerializeField] GameObject startGamePanel;
     public string gameMode;
+    public List<ButtonPosition> spriteButtonPlaces;
+
+    #endregion
 
     private void Start()
     {
@@ -79,6 +87,7 @@ public class GridManager : MonoBehaviour
     void CreateGrid()
     {
         buttons = new Button[10, 5];
+
         for (int row = 0; row < 10; row++)
         {
             for (int col = 0; col < 5; col++)
@@ -94,7 +103,7 @@ public class GridManager : MonoBehaviour
                 button.name = "BTN: " + buttonRow.ToString() + " " + buttonCol.ToString();
                 button.onClick.AddListener(() =>
                 {
-                     ButtonClicked(buttonRow, buttonCol);
+                    ButtonClicked(buttonRow, buttonCol);
                 });
             }
         }
@@ -102,7 +111,9 @@ public class GridManager : MonoBehaviour
 
     void ButtonClicked(int row, int col)
     {
-        if(gameMode == "PVP") //  This condition works only when the game mode is player versus player
+        #region Player Versus Player
+
+        if (gameMode == "PVP") //  This condition works only when the game mode is player versus player
         {
             Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
             if (gameManager.isClicked && gameManager.isGameStarted) return;
@@ -112,28 +123,37 @@ public class GridManager : MonoBehaviour
                 if (image.sprite != null) return;
                 image.sprite = catNDog_Sprites[0]; // Player 1 places dog characters
                 gameManager.playerCharacterPlacement[0]--;
+                //The below code  is to add the sprite positions to get the row and col highlighted.
+                spriteButtonPlaces.Add(new ButtonPosition { row = row, col = col });
             }
             else if (!gameManager.turn && gameManager.CheckTurn(2))
             {
                 if (image.sprite != null) return;
                 image.sprite = catNDog_Sprites[1]; // Player 2 places cat characters
                 gameManager.playerCharacterPlacement[1]--;
+                //The below code  is to add the sprite positions to get the row and col highlighted.
+                spriteButtonPlaces.Add(new ButtonPosition { row = row, col = col });
             }
             if (!gameManager.isGameStarted)
                 CheckPlayers();
             else
             {
                 GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-                if (!gameManager.isClicked && image.color != Color.red) gameManager.isClicked = true;
+                if (!gameManager.isClicked && (image.color != Color.red || image != null)) gameManager.isClicked = true;
             }
         }
-        else if(gameMode == "PVC")
+
+        #endregion
+
+        #region Player Versus Computer
+
+        else if (gameMode == "PVC")
         {
             //Add The AI
-            if(gameManager.character == 1)
+            if (gameManager.character == 1)
             {
                 //In case of cat selected
-                if(gameManager.turn)
+                if (gameManager.turn)
                 {
                     //Player
                     Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
@@ -160,7 +180,7 @@ public class GridManager : MonoBehaviour
                     //ComputerPlayer(2);
                 }
             }
-            else if(gameManager.character == 2)
+            else if (gameManager.character == 2)
             {
                 //In case of dog selected
                 if (gameManager.turn)
@@ -191,6 +211,8 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+
+        #endregion
     }
 
     void CheckPlayers()
@@ -208,11 +230,11 @@ public class GridManager : MonoBehaviour
                 {
                     image.enabled = true;
                 }
-                else if(sprite != currentPlayerSprite && image.color != Color.red)
+                else if (sprite != currentPlayerSprite && image.color != Color.red)
                 {
                     image.enabled = false;
                 }
-                else if(sprite == currentPlayerSprite && image.color == Color.red)
+                else if (sprite == currentPlayerSprite && image.color == Color.red)
                 {
                     image.enabled = true;
                 }
@@ -223,6 +245,7 @@ public class GridManager : MonoBehaviour
     void TurnBasedPlacement()
     {
         bool player1Turn = gameManager.turn;
+
 
         for (int row = 0; row < 10; row++)
         {
@@ -290,6 +313,8 @@ public class GridManager : MonoBehaviour
         Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
         return image.sprite == null;
     }
+
+    #region AI_COMP
     private void ComputerPlayer(int playerNumber)
     {
         Image image;
@@ -331,7 +356,7 @@ public class GridManager : MonoBehaviour
             }
 
             //GamePlay stage
-            if(gameManager.isGameStarted && gameManager.turn)
+            if (gameManager.isGameStarted && gameManager.turn)
             {
                 //Do Something here to simulate the button guess
                 int row = Random.Range(6, 10);
@@ -420,13 +445,179 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
     public void GameUpdate()
     {
         CheckPlayers();// To hide the players
         TurnBasedPlacement();// To make the buttons interactable or non interactable
+        RCGrid(); // This function works to select the character to move the character by one position.
+        CheckSelectedColors(); // This function works to deselect the colors and make it to the default color(white)
         gameManager.GameWon();
         gameManager.TurnTextSwitch();
         gameManager.isClicked = false;
     }
+
+    private void RCGrid()
+    {
+        for (int row = 0; row < 10; row++)
+        {
+            for (int col = 0; col < 5; col++)
+            {
+                if (gameManager.turn)
+                {
+                    if (row >= 0 && row <= 4)
+                    {
+                        foreach (ButtonPosition b in spriteButtonPlaces)
+                        {
+                            if (b.row >= 0 && b.row <= 4)
+                            {
+                                if (buttons[b.row, b.col].image.color != Color.red)
+                                {
+                                    buttons[b.row, b.col].interactable = true; //Current Button
+
+                                    buttons[b.row, b.col].onClick.AddListener(() =>
+                                    {
+                                        CheckSelectedColors();
+
+                                        buttons[b.row, b.col].image.color = Color.green;
+
+                                        if (b.col < 4)
+                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
+                                        if (b.col > 0)
+                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
+                                        if (b.row < 4)
+                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
+                                        if (b.row > 0)
+                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
+
+                                        OnClickShift(b.row, b.col);
+                                    });
+
+                                    if (b.col < 4)
+                                        buttons[b.row, b.col + 1].interactable = true; //Right
+                                    if (b.col > 0)
+                                        buttons[b.row, b.col - 1].interactable = true; //Left
+                                    if (b.row < 4)
+                                        buttons[b.row + 1, b.col].interactable = true; //Down
+                                    if (b.row > 0)
+                                        buttons[b.row - 1, b.col].interactable = true; //Up
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (row >= 5 && row <= 9)
+                    {
+                        foreach (ButtonPosition b in spriteButtonPlaces)
+                        {
+                            if (b.row >= 5 && b.row <= 9)
+                            {
+                                if (buttons[b.row, b.col].image.color != Color.red)
+                                {
+                                    buttons[b.row, b.col].interactable = true; //Current Button
+
+                                    buttons[b.row, b.col].onClick.AddListener(() =>
+                                    {
+                                        CheckSelectedColors();
+
+                                        buttons[b.row, b.col].image.color = Color.green;
+
+                                        if (b.col < 4)
+                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
+                                        if (b.col > 0)
+                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
+                                        if (b.row < 9)
+                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
+                                        if (b.row > 5)
+                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
+
+                                        OnClickShift(b.row, b.col);
+                                    });
+
+                                    if (b.col < 4)
+                                        buttons[b.row, b.col + 1].interactable = true; //Right
+                                    if (b.col > 0)
+                                        buttons[b.row, b.col - 1].interactable = true; //Left
+                                    if (b.row < 9)
+                                        buttons[b.row + 1, b.col].interactable = true; //Down
+                                    if (b.row > 5)
+                                        buttons[b.row - 1, b.col].interactable = true; //Up
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void CheckSelectedColors()
+    {
+        for (int row = 0; row < 10; row++)
+        {
+            for (int col = 0; col < 5; col++)
+            {
+                if (buttons[row, col].image.color == Color.green || buttons[row, col].image.color == Color.yellow)
+                {
+                    buttons[row, col].image.color = Color.white;
+                }
+            }
+        }
+    }
+
+    private void OnClickShift(int row, int col)//This method is to change the character position
+    {
+        /*if (col < 4)*/
+        buttons[row, col + 1].onClick.AddListener(() =>
+        {
+                //Body
+                SwapCharacterPosition(buttons[row, col], buttons[row, col + 1]);
+        });
+        /*if (col > 0)*/
+        buttons[row, col - 1].onClick.AddListener(() =>
+        {
+                //Body
+                SwapCharacterPosition(buttons[row, col], buttons[row, col - 1]);
+        });
+        /*if (row < 9)*/
+        buttons[row + 1, col].onClick.AddListener(() =>
+        {
+                //Body
+                SwapCharacterPosition(buttons[row, col], buttons[row + 1, col]);
+        });
+        /*if (row > 5)*/
+        buttons[row - 1, col].onClick.AddListener(() =>
+        {
+                //Body
+                SwapCharacterPosition(buttons[row, col], buttons[row - 1, col]);
+        });
+    }
+
+    private void SwapCharacterPosition(Button btn_Original, Button btn_Duplicate)
+    {
+        var temp = btn_Original.image;
+        btn_Original.image = btn_Duplicate.image;
+        btn_Duplicate.image = temp;
+    }
+
+
+    #region STRUCTURES
+
+    [System.Serializable]
+    public struct ButtonPosition
+    {
+        public int row;
+        public int col;
+    }
+
+    [System.Serializable]
+    public struct LastPosition
+    {
+        public int row;
+        public int col;
+    }
+    #endregion
 }
