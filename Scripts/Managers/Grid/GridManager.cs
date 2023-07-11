@@ -139,7 +139,8 @@ public class GridManager : MonoBehaviour
             else
             {
                 GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-                if (!gameManager.isClicked && (image.color != Color.red || image != null)) gameManager.isClicked = true;
+                if (!gameManager.isClicked && (image.color != Color.red && image == null)) gameManager.isClicked = true;
+                else if (!gameManager.isClicked && image.color != Color.red) gameManager.isClicked = true;
             }
         }
 
