@@ -26,26 +26,46 @@ public class GameState : GameStateCall
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Dog_0" && _game_Manager.playersScores[0] > 0 && _button_Clicked_Image.color != Color.red)
+                if (_sprite.name == "Dog_0" 
+                    && _game_Manager.playersScores[0] > 0 
+                    && _button_Clicked_Image.color != Color.red)
                 {
-                    Debug.Log("Dog Found...");
-                    _game_Manager.playersScores[0]--;
-                    _button_Clicked_Image.enabled = true;
-                    if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
-                    _button_Clicked_Image.color = Color.red;
+                    if (!_game_Manager.isClicked && _game_Manager.playerTurnPlacements[0] > 0)
+                    {
+                        Debug.Log("Dog Found...");
+                        _game_Manager.playersScores[0]--;
+                        _button_Clicked_Image.enabled = true;
+                        /*if (!_game_Manager.isClicked) _game_Manager.isClicked = true;*/
+                        _game_Manager.playerTurnPlacements[0]--;
+                        _button_Clicked_Image.color = Color.red;
+                    }
+                    else
+                    {
+                        if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
+                    }
                 }
             }
             else
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Cat_0" && _game_Manager.playersScores[1] > 0 && _button_Clicked_Image.color != Color.red)
+                if (_sprite.name == "Cat_0" 
+                    && _game_Manager.playersScores[1] > 0 
+                    && _button_Clicked_Image.color != Color.red)
                 {
-                    Debug.Log("Cat Found...");
-                    _game_Manager.playersScores[1]--;
-                    _button_Clicked_Image.enabled = true;
-                    if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
-                    _button_Clicked_Image.color = Color.red;
+                    if (!_game_Manager.isClicked && _game_Manager.playerTurnPlacements[1] > 0)
+                    {
+                        Debug.Log("Cat Found...");
+                        _game_Manager.playersScores[1]--;
+                        _button_Clicked_Image.enabled = true;
+                        /*if (!_game_Manager.isClicked) _game_Manager.isClicked = true;*/
+                        _game_Manager.playerTurnPlacements[1]--;
+                        _button_Clicked_Image.color = Color.red;
+                    }
+                    else
+                    {
+                        if (!_game_Manager.isClicked) _game_Manager.isClicked = true;
+                    }
                 }
             }
         }
@@ -69,7 +89,8 @@ public class GridManager : MonoBehaviour
     public Button submitButton;
     [SerializeField] GameObject startGamePanel;
     public string gameMode;
-    public List<ButtonPosition> spriteButtonPlaces;
+    public List<ButtonPosition> spriteButtonPlaces_One;
+    public List<ButtonPosition> spriteButtonPlaces_Two;
 
     #endregion
 
@@ -124,7 +145,7 @@ public class GridManager : MonoBehaviour
                 image.sprite = catNDog_Sprites[0]; // Player 1 places dog characters
                 gameManager.playerCharacterPlacement[0]--;
                 //The below code  is to add the sprite positions to get the row and col highlighted.
-                spriteButtonPlaces.Add(new ButtonPosition { row = row, col = col });
+                spriteButtonPlaces_One.Add(new ButtonPosition { row = row, col = col });
             }
             else if (!gameManager.turn && gameManager.CheckTurn(2))
             {
@@ -132,15 +153,47 @@ public class GridManager : MonoBehaviour
                 image.sprite = catNDog_Sprites[1]; // Player 2 places cat characters
                 gameManager.playerCharacterPlacement[1]--;
                 //The below code  is to add the sprite positions to get the row and col highlighted.
-                spriteButtonPlaces.Add(new ButtonPosition { row = row, col = col });
+                spriteButtonPlaces_Two.Add(new ButtonPosition { row = row, col = col });
             }
             if (!gameManager.isGameStarted)
                 CheckPlayers();
             else
             {
                 GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-                if (!gameManager.isClicked && (image.color != Color.red && image == null)) gameManager.isClicked = true;
-                else if (!gameManager.isClicked && image.color != Color.red) gameManager.isClicked = true;
+                /*                if (!gameManager.isClicked && (image.color != Color.red && image == null) && 
+                                    (buttons[row, col].image.color != Color.yellow 
+                                    || buttons[row, col].image.color != Color.green))*/
+
+                if (!gameManager.isClicked &&
+                        image.color != Color.red &&
+                        buttons[row, col].image.color != Color.green &&
+                        buttons[row, col].image.color != Color.yellow)
+                {
+                    if (gameManager.turn)
+                    {
+                        if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[0] > 0)
+                        {
+                            gameManager.playerTurnPlacements[0]--;
+                        }
+                        else
+                        {
+                            if(gameManager.playerTurnPlacements[0] <= 0)
+                                gameManager.isClicked = true;
+                        }
+                    }
+                    else
+                    {
+                        if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[1] > 0)
+                        {
+                            gameManager.playerTurnPlacements[1]--;
+                        }
+                        else
+                        {
+                            if(gameManager.playerTurnPlacements[1] <= 0)
+                                gameManager.isClicked = true;
+                        }
+                    }
+                }
             }
         }
 
@@ -307,6 +360,8 @@ public class GridManager : MonoBehaviour
             }
             GameUpdate();
             ComputerCall();
+            gameManager.playerTurnPlacements[0] = 3;
+            gameManager.playerTurnPlacements[1] = 3;
         });
     }
     private bool IsEmpty(int row, int col)
@@ -469,7 +524,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (row >= 0 && row <= 4)
                     {
-                        foreach (ButtonPosition b in spriteButtonPlaces)
+                        foreach (ButtonPosition b in spriteButtonPlaces_One)
                         {
                             if (b.row >= 0 && b.row <= 4)
                             {
@@ -492,7 +547,7 @@ public class GridManager : MonoBehaviour
                                         if (b.row > 0)
                                             buttons[b.row - 1, b.col].image.color = Color.yellow;
 
-                                        OnClickShift(b.row, b.col);
+                                        OnClickShift(b.row, b.col, true);
                                     });
 
                                     if (b.col < 4)
@@ -512,7 +567,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (row >= 5 && row <= 9)
                     {
-                        foreach (ButtonPosition b in spriteButtonPlaces)
+                        foreach (ButtonPosition b in spriteButtonPlaces_Two)
                         {
                             if (b.row >= 5 && b.row <= 9)
                             {
@@ -535,7 +590,7 @@ public class GridManager : MonoBehaviour
                                         if (b.row > 5)
                                             buttons[b.row - 1, b.col].image.color = Color.yellow;
 
-                                        OnClickShift(b.row, b.col);
+                                        OnClickShift(b.row, b.col, false);
                                     });
 
                                     if (b.col < 4)
@@ -569,39 +624,117 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void OnClickShift(int row, int col)//This method is to change the character position
+    private void OnClickShift(int row, int col, bool value)//This method is to change the character position
     {
-        /*if (col < 4)*/
-        buttons[row, col + 1].onClick.AddListener(() =>
+        if (value)
         {
-                //Body
-                SwapCharacterPosition(buttons[row, col], buttons[row, col + 1]);
-        });
-        /*if (col > 0)*/
-        buttons[row, col - 1].onClick.AddListener(() =>
+            if (col < 4)
+                buttons[row, col + 1].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row, col + 1], value, row, col, row, col + 1);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (col > 0)
+                buttons[row, col - 1].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row, col - 1], value, row, col, row, col - 1);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (row < 4)
+                buttons[row + 1, col].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row + 1, col], value, row, col, row + 1, col);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (row > 0)
+                buttons[row - 1, col].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row - 1, col], value, row, col, row - 1, col);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+        }
+        else
         {
-                //Body
-                SwapCharacterPosition(buttons[row, col], buttons[row, col - 1]);
-        });
-        /*if (row < 9)*/
-        buttons[row + 1, col].onClick.AddListener(() =>
-        {
-                //Body
-                SwapCharacterPosition(buttons[row, col], buttons[row + 1, col]);
-        });
-        /*if (row > 5)*/
-        buttons[row - 1, col].onClick.AddListener(() =>
-        {
-                //Body
-                SwapCharacterPosition(buttons[row, col], buttons[row - 1, col]);
-        });
+            if (col < 4)
+                buttons[row, col + 1].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row, col + 1], value, row, col, row, col + 1);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (col > 0)
+                buttons[row, col - 1].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row, col - 1], value, row, col, row, col - 1);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (row < 9)
+                buttons[row + 1, col].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row + 1, col], value, row, col, row + 1, col);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+            if (row > 5)
+                buttons[row - 1, col].onClick.AddListener(() =>
+                {
+                    //Body
+                    SwapCharacterPosition(buttons[row, col], buttons[row - 1, col], value, row, col, row - 1, col);
+                    //UpdateSpritesLocation(value, row, col);
+                });
+        }
     }
 
-    private void SwapCharacterPosition(Button btn_Original, Button btn_Duplicate)
+    private void SwapCharacterPosition(Button btn_Original, Button btn_Duplicate, bool value, int row, int col, int row1, int col1)
     {
-        var temp = btn_Original.image;
+        /*var temp = btn_Original.image;
         btn_Original.image = btn_Duplicate.image;
-        btn_Duplicate.image = temp;
+        btn_Duplicate.image = temp;*/
+        if (btn_Original.image.color == Color.green)
+        {
+            Sprite sprite = btn_Original.transform.GetChild(0).GetComponent<Image>().sprite;
+            btn_Original.transform.GetChild(0).GetComponent<Image>().enabled = false;
+            btn_Original.transform.GetChild(0).GetComponent<Image>().sprite = null;
+            if (btn_Duplicate.image.color == Color.yellow)
+            {
+                btn_Duplicate.transform.GetChild(0).GetComponent<Image>().enabled = true;
+                btn_Duplicate.transform.GetChild(0).GetComponent<Image>().sprite = sprite;
+            }
+        }
+        CheckSelectedColors();
+        UpdateSpritesLocation(value, row, col, row1, col1);
+        //RCGrid();
+    }
+
+    private void UpdateSpritesLocation(bool value, int r, int c, int r1, int c1)
+    {
+        if (value)
+        {
+            ButtonPosition x = new ButtonPosition { row = r, col = c };
+            int index = spriteButtonPlaces_One.FindIndex(buttonPos => buttonPos.row == x.row && buttonPos.col == x.col);
+
+            if (index != -1)
+            {
+                spriteButtonPlaces_One.RemoveAt(index);
+                spriteButtonPlaces_One.Insert(index, new ButtonPosition { row = r1, col = c1 });
+            }
+        }
+        else if (!value)
+        {
+            ButtonPosition x = new ButtonPosition { row = r, col = c };
+            int index = spriteButtonPlaces_Two.FindIndex(buttonPos => buttonPos.row == x.row && buttonPos.col == x.col);
+
+            if (index != -1)
+            {
+                spriteButtonPlaces_Two.RemoveAt(index);
+                spriteButtonPlaces_Two.Insert(index, new ButtonPosition { row = r1, col = c1 });
+            }
+        }
     }
 
 

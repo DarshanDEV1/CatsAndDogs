@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public int[] playerCharacterPlacement = new int[2] { 3, 3 };
     [SerializeField] GridManager gridController;
     public int[]playersScores = new int[2] { 3, 3 };
+    public int[] playerTurnPlacements = new int[2] { 3, 3 };
     [SerializeField] GameObject winPanel;
     [SerializeField] TMP_Text playerTurnText;
     [SerializeField] Button backButton;
