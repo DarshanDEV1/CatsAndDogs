@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using UnityEditor;
 
 public abstract class GameStateCall : GridManager
 {
     //Do all the operations that are required to do during gamestate
     public abstract void ButtonCheck(bool _game_State, bool _player_Turn, Image _button_Clicked_Image);
 }
+
 public class GameState : GameStateCall
 {
     public GameState(bool _game_State, bool _player_Turn, Image _button_Clicked_Image)
@@ -26,8 +28,8 @@ public class GameState : GameStateCall
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Dog_0" 
-                    && _game_Manager.playersScores[0] > 0 
+                if (_sprite.name == "Dog_0"
+                    && _game_Manager.playersScores[0] > 0
                     && _button_Clicked_Image.color != Color.red)
                 {
                     if (!_game_Manager.isClicked && _game_Manager.playerTurnPlacements[0] > 0)
@@ -37,6 +39,7 @@ public class GameState : GameStateCall
                         _button_Clicked_Image.enabled = true;
                         /*if (!_game_Manager.isClicked) _game_Manager.isClicked = true;*/
                         _game_Manager.playerTurnPlacements[0]--;
+                        _game_Manager.move_Text.text = "Move_Left : " + _game_Manager.playerTurnPlacements[0].ToString();
                         _button_Clicked_Image.color = Color.red;
                     }
                     else
@@ -49,8 +52,8 @@ public class GameState : GameStateCall
             {
                 Sprite _sprite = _button_Clicked_Image.sprite;
                 if (_sprite == null) return;
-                if (_sprite.name == "Cat_0" 
-                    && _game_Manager.playersScores[1] > 0 
+                if (_sprite.name == "Cat_0"
+                    && _game_Manager.playersScores[1] > 0
                     && _button_Clicked_Image.color != Color.red)
                 {
                     if (!_game_Manager.isClicked && _game_Manager.playerTurnPlacements[1] > 0)
@@ -60,6 +63,7 @@ public class GameState : GameStateCall
                         _button_Clicked_Image.enabled = true;
                         /*if (!_game_Manager.isClicked) _game_Manager.isClicked = true;*/
                         _game_Manager.playerTurnPlacements[1]--;
+                        _game_Manager.move_Text.text = "Move_Left : " + _game_Manager.playerTurnPlacements[1].ToString();
                         _button_Clicked_Image.color = Color.red;
                     }
                     else
@@ -75,7 +79,6 @@ public class GameState : GameStateCall
         Debug.Log("Destroyed the instance...");
     }
 }
-
 
 [System.Serializable]
 public class GridManager : MonoBehaviour
@@ -160,6 +163,7 @@ public class GridManager : MonoBehaviour
             else
             {
                 GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                DisableRedButtons();
                 /*                if (!gameManager.isClicked && (image.color != Color.red && image == null) && 
                                     (buttons[row, col].image.color != Color.yellow 
                                     || buttons[row, col].image.color != Color.green))*/
@@ -167,33 +171,41 @@ public class GridManager : MonoBehaviour
                 if (!gameManager.isClicked &&
                         image.color != Color.red &&
                         buttons[row, col].image.color != Color.green &&
-                        buttons[row, col].image.color != Color.yellow)
+                        (buttons[row, col].image.color == Color.yellow ||
+                        buttons[row, col].image.color == Color.white))
                 {
                     if (gameManager.turn)
                     {
-                        if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[0] > 0)
+                        if (gameManager.playerTurnPlacements[0] > 0)
                         {
-                            gameManager.playerTurnPlacements[0]--;
+                            if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[0] > 0)
+                            {
+                                gameManager.playerTurnPlacements[0]--;
+                                gameManager.move_Text.text = "Move_Left : " + gameManager.playerTurnPlacements[0].ToString();
+                            }
                         }
                         else
                         {
-                            if(gameManager.playerTurnPlacements[0] <= 0)
-                                gameManager.isClicked = true;
+                            gameManager.isClicked = true;
                         }
                     }
                     else
                     {
-                        if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[1] > 0)
+                        if (gameManager.playerTurnPlacements[1] > 0)
                         {
-                            gameManager.playerTurnPlacements[1]--;
+                            if (!gameManager.isClicked && image.sprite == null && gameManager.playerTurnPlacements[1] > 0)
+                            {
+                                gameManager.playerTurnPlacements[1]--;
+                                gameManager.move_Text.text = "Move_Left : " + gameManager.playerTurnPlacements[1].ToString();
+                            }
                         }
                         else
                         {
-                            if(gameManager.playerTurnPlacements[1] <= 0)
-                                gameManager.isClicked = true;
+                            gameManager.isClicked = true;
                         }
                     }
                 }
+                else return;
             }
         }
 
@@ -360,10 +372,12 @@ public class GridManager : MonoBehaviour
             }
             GameUpdate();
             ComputerCall();
-            gameManager.playerTurnPlacements[0] = 3;
-            gameManager.playerTurnPlacements[1] = 3;
+            /*gameManager.playerTurnPlacements[0] = 3;
+            gameManager.playerTurnPlacements[1] = 3;*/
+            gameManager.Move_Left(true);
         });
     }
+
     private bool IsEmpty(int row, int col)
     {
         Image image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
@@ -512,7 +526,11 @@ public class GridManager : MonoBehaviour
         gameManager.GameWon();
         gameManager.TurnTextSwitch();
         gameManager.isClicked = false;
+        DisableRedButtons();
     }
+
+
+    #region NEWLY_ADDED
 
     private void RCGrid()
     {
@@ -522,103 +540,89 @@ public class GridManager : MonoBehaviour
             {
                 if (gameManager.turn)
                 {
-                    if (row >= 0 && row <= 4)
+                    //If the turn is of player one
+                    if (gameManager.playerTurnPlacements[0] > 0)
                     {
+                        //Do Something When The Player Placements Are Greater Than Zero
                         foreach (ButtonPosition b in spriteButtonPlaces_One)
                         {
-                            if (b.row >= 0 && b.row <= 4)
+                            //Do Something
+                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red)
                             {
-                                if (buttons[b.row, b.col].image.color != Color.red)
+                                buttons[b.row, b.col].interactable = true; //Current Button
+
+                                buttons[b.row, b.col].onClick.AddListener(() =>
                                 {
-                                    buttons[b.row, b.col].interactable = true; //Current Button
+                                    CheckSelectedColors();
 
-                                    buttons[b.row, b.col].onClick.AddListener(() =>
-                                    {
-                                        CheckSelectedColors();
-
-                                        buttons[b.row, b.col].image.color = Color.green;
-
-                                        if (b.col < 4)
-                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
-                                        if (b.col > 0)
-                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
-                                        if (b.row < 4)
-                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
-                                        if (b.row > 0)
-                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
-
-                                        OnClickShift(b.row, b.col, true);
-                                    });
+                                    buttons[b.row, b.col].image.color = Color.green;
 
                                     if (b.col < 4)
-                                        buttons[b.row, b.col + 1].interactable = true; //Right
+                                        buttons[b.row, b.col + 1].image.color = Color.yellow;
                                     if (b.col > 0)
-                                        buttons[b.row, b.col - 1].interactable = true; //Left
+                                        buttons[b.row, b.col - 1].image.color = Color.yellow;
                                     if (b.row < 4)
-                                        buttons[b.row + 1, b.col].interactable = true; //Down
+                                        buttons[b.row + 1, b.col].image.color = Color.yellow;
                                     if (b.row > 0)
-                                        buttons[b.row - 1, b.col].interactable = true; //Up
-                                }
+                                        buttons[b.row - 1, b.col].image.color = Color.yellow;
+
+                                    OnClickShift(b.row, b.col, true);
+                                });
+
+                                if (b.col < 4)
+                                    buttons[b.row, b.col + 1].interactable = true; //Right
+                                if (b.col > 0)
+                                    buttons[b.row, b.col - 1].interactable = true; //Left
+                                if (b.row < 4)
+                                    buttons[b.row + 1, b.col].interactable = true; //Down
+                                if (b.row > 0)
+                                    buttons[b.row - 1, b.col].interactable = true; //Up
                             }
                         }
                     }
                 }
                 else
                 {
-                    if (row >= 5 && row <= 9)
+                    //If the turn is of player two
+                    if (gameManager.playerTurnPlacements[1] > 0)
                     {
+                        //Do Something When The Player Placements Are Greater Than Zero
                         foreach (ButtonPosition b in spriteButtonPlaces_Two)
                         {
-                            if (b.row >= 5 && b.row <= 9)
+                            //Do Something
+                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red)
                             {
-                                if (buttons[b.row, b.col].image.color != Color.red)
+                                buttons[b.row, b.col].interactable = true; //Current Button
+
+                                buttons[b.row, b.col].onClick.AddListener(() =>
                                 {
-                                    buttons[b.row, b.col].interactable = true; //Current Button
+                                    CheckSelectedColors();
 
-                                    buttons[b.row, b.col].onClick.AddListener(() =>
-                                    {
-                                        CheckSelectedColors();
-
-                                        buttons[b.row, b.col].image.color = Color.green;
-
-                                        if (b.col < 4)
-                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
-                                        if (b.col > 0)
-                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
-                                        if (b.row < 9)
-                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
-                                        if (b.row > 5)
-                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
-
-                                        OnClickShift(b.row, b.col, false);
-                                    });
+                                    buttons[b.row, b.col].image.color = Color.green;
 
                                     if (b.col < 4)
-                                        buttons[b.row, b.col + 1].interactable = true; //Right
+                                        buttons[b.row, b.col + 1].image.color = Color.yellow;
                                     if (b.col > 0)
-                                        buttons[b.row, b.col - 1].interactable = true; //Left
+                                        buttons[b.row, b.col - 1].image.color = Color.yellow;
                                     if (b.row < 9)
-                                        buttons[b.row + 1, b.col].interactable = true; //Down
+                                        buttons[b.row + 1, b.col].image.color = Color.yellow;
                                     if (b.row > 5)
-                                        buttons[b.row - 1, b.col].interactable = true; //Up
-                                }
+                                        buttons[b.row - 1, b.col].image.color = Color.yellow;
+
+                                    OnClickShift(b.row, b.col, false);
+                                });
+
+                                if (b.col < 4)
+                                    buttons[b.row, b.col + 1].interactable = true; //Right
+                                if (b.col > 0)
+                                    buttons[b.row, b.col - 1].interactable = true; //Left
+                                if (b.row < 9)
+                                    buttons[b.row + 1, b.col].interactable = true; //Down
+                                if (b.row > 5)
+                                    buttons[b.row - 1, b.col].interactable = true; //Up
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    private void CheckSelectedColors()
-    {
-        for (int row = 0; row < 10; row++)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                if (buttons[row, col].image.color == Color.green || buttons[row, col].image.color == Color.yellow)
-                {
-                    buttons[row, col].image.color = Color.white;
                 }
             }
         }
@@ -690,6 +694,20 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    private void CheckSelectedColors()
+    {
+        for (int row = 0; row < 10; row++)
+        {
+            for (int col = 0; col < 5; col++)
+            {
+                if (buttons[row, col].image.color == Color.green || buttons[row, col].image.color == Color.yellow)
+                {
+                    buttons[row, col].image.color = Color.white;
+                }
+            }
+        }
+    }
+
     private void SwapCharacterPosition(Button btn_Original, Button btn_Duplicate, bool value, int row, int col, int row1, int col1)
     {
         /*var temp = btn_Original.image;
@@ -700,7 +718,8 @@ public class GridManager : MonoBehaviour
             Sprite sprite = btn_Original.transform.GetChild(0).GetComponent<Image>().sprite;
             btn_Original.transform.GetChild(0).GetComponent<Image>().enabled = false;
             btn_Original.transform.GetChild(0).GetComponent<Image>().sprite = null;
-            if (btn_Duplicate.image.color == Color.yellow)
+            if (btn_Duplicate.image.color == Color.yellow /*&& 
+                gameManager.playerTurnPlacements[0] > 0 ? value : gameManager.playerTurnPlacements[1] > 0*/)
             {
                 btn_Duplicate.transform.GetChild(0).GetComponent<Image>().enabled = true;
                 btn_Duplicate.transform.GetChild(0).GetComponent<Image>().sprite = sprite;
@@ -737,6 +756,23 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    private void DisableRedButtons()
+    {
+        for (int row = 0; row < 10; row++)
+        {
+            for (int col = 0; col < 5; col++)
+            {
+                if (buttons[row, col].transform.GetChild(0).GetComponent<Image>().sprite != null)
+                {
+                    if (buttons[row, col].transform.GetChild(0).GetComponent<Image>().color == Color.red)
+                    {
+                        buttons[row, col].interactable = false;
+                    }
+                }
+            }
+        }
+    }
+    #endregion
 
     #region STRUCTURES
 

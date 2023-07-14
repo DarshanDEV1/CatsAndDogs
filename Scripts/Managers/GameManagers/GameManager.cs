@@ -12,10 +12,11 @@ public class GameManager : MonoBehaviour
     public bool isClicked = false;
     public int[] playerCharacterPlacement = new int[2] { 3, 3 };
     [SerializeField] GridManager gridController;
-    public int[]playersScores = new int[2] { 3, 3 };
+    public int[] playersScores = new int[2] { 3, 3 };
     public int[] playerTurnPlacements = new int[2] { 3, 3 };
     [SerializeField] GameObject winPanel;
     [SerializeField] TMP_Text playerTurnText;
+    public TMP_Text move_Text;
     [SerializeField] Button backButton;
     [SerializeField] Button restartButton;
     [SerializeField] Button[] chooseCharacter;
@@ -98,14 +99,14 @@ public class GameManager : MonoBehaviour
 
     public void GameWon()
     {
-        if(isGameStarted && playersScores[0] <= 0)
+        if (isGameStarted && playersScores[0] <= 0)
         {
             //Game Win Panel For Player One
             winPanel.SetActive(true);
             TMP_Text _text = winPanel.transform.GetChild(0).GetComponent<TMP_Text>();
             _text.text = "The winner is player one...";
         }
-        else if(isGameStarted && playersScores[1] <= 0)
+        else if (isGameStarted && playersScores[1] <= 0)
         {
             //Game Win Panel For Player Two
             winPanel.SetActive(true);
@@ -120,13 +121,39 @@ public class GameManager : MonoBehaviour
 
     public void TurnTextSwitch()
     {
-        if(turn)
+        if (turn)
         {
             playerTurnText.text = "Turn : Player 1";
         }
         else
         {
             playerTurnText.text = "Turn : Player 2";
+        }
+    }
+
+    public void Move_Left(bool fill)
+    {
+        if (fill)
+        {
+            //Fill the amount
+            for (int i = 0; i < 2; i++)
+            {
+                playerTurnPlacements[i] = 3;
+                move_Text.text = "Move_Left : " + playerTurnPlacements[i].ToString();
+            }
+        }
+        else
+        {
+            if (turn && playerTurnPlacements[0] > 0)
+            {
+                playerTurnPlacements[0]--;
+                move_Text.text = "Move_Left : " + playerTurnPlacements[0].ToString();
+            }
+            else if (!turn && playerTurnPlacements[1] > 0)
+            {
+                playerTurnPlacements[1]--;
+                move_Text.text = "Move_Left : " + playerTurnPlacements[1].ToString();
+            }
         }
     }
 }

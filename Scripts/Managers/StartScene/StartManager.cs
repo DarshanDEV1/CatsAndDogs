@@ -13,10 +13,14 @@ using DT_UI;
 
 public class StartManager : MonoBehaviourPunCallbacks
 {
+    #region VARIABLES
+
     [SerializeField] GameObject multiplayerConnectingPanel;
     [SerializeField] UIManager _uiManager;
 
     KeyValue keyvalue = new KeyValue();
+
+    #endregion
 
     private void Awake()
     {
