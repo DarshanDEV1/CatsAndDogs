@@ -128,6 +128,7 @@ public class GridManager : MonoBehaviour
                 button.onClick.AddListener(() =>
                 {
                     ButtonClicked(buttonRow, buttonCol);
+                    /*CheckSelectedColors();*/
                 });
             }
         }
@@ -547,7 +548,8 @@ public class GridManager : MonoBehaviour
                         foreach (ButtonPosition b in spriteButtonPlaces_One)
                         {
                             //Do Something
-                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red)
+                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                                buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().sprite != null)
                             {
                                 buttons[b.row, b.col].interactable = true; //Current Button
 
@@ -590,7 +592,8 @@ public class GridManager : MonoBehaviour
                         foreach (ButtonPosition b in spriteButtonPlaces_Two)
                         {
                             //Do Something
-                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red)
+                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                                buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().sprite != null)
                             {
                                 buttons[b.row, b.col].interactable = true; //Current Button
 
@@ -630,6 +633,7 @@ public class GridManager : MonoBehaviour
 
     private void OnClickShift(int row, int col, bool value)//This method is to change the character position
     {
+        CheckSelectedColors();
         if (value)
         {
             if (col < 4)
