@@ -41,7 +41,7 @@ public class PunGameManager : MonoBehaviour
         });
         backButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("StartScene");
+            PhotonNetwork.LoadLevel("StartScene");
         });
         chooseCharacter[0].onClick.AddListener(() =>
         {

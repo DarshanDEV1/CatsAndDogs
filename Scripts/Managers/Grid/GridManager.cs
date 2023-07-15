@@ -208,6 +208,24 @@ public class GridManager : MonoBehaviour
                 }
                 else return;
             }
+            /*            if (buttons[row, col].image.color != Color.yellow || 
+                            buttons[row, col].transform.GetChild(0).GetComponent<Image>().sprite != null)
+                        {
+                            if (row >= 0 && row <= 4)
+                            {
+                                if (!gameManager.turn)
+                                {
+                                    CheckSelectedColors();
+                                }
+                            }
+                            else if (row >= 5 && row <= 9)
+                            {
+                                if (gameManager.turn)
+                                {
+                                    CheckSelectedColors();
+                                }
+                            }
+                        }*/
         }
 
         #endregion
@@ -430,15 +448,18 @@ public class GridManager : MonoBehaviour
             if (gameManager.isGameStarted && gameManager.turn)
             {
                 //Do Something here to simulate the button guess
-                int row = Random.Range(6, 10);
-                int col = Random.Range(0, 5);
+                for (int i = 0; i < 3; i++)
+                {
+                    int row = Random.Range(6, 10);
+                    int col = Random.Range(0, 5);
 
-                image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
-                Debug.Log(buttons[row, col].name);
-                gameManager.isClicked = true;
-                GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-                gameManager.turn = !gameManager.turn;
-                GameUpdate();
+                    image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    Debug.Log(buttons[row, col].name);
+                    gameManager.isClicked = true;
+                    GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                    gameManager.turn = !gameManager.turn;
+                    GameUpdate();
+                }
             }
         }
         else if (playerNumber == 2)
@@ -480,15 +501,18 @@ public class GridManager : MonoBehaviour
             if (gameManager.isGameStarted && !gameManager.turn)
             {
                 //Do Something here to simulate the button guess
-                int row = Random.Range(0, 5);
-                int col = Random.Range(0, 5);
+                for (int i = 0; i < 3; i++)
+                {
+                    int row = Random.Range(0, 5);
+                    int col = Random.Range(0, 5);
 
-                image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
-                Debug.Log(buttons[row, col].name);
-                gameManager.isClicked = true;
-                GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
-                gameManager.turn = !gameManager.turn;
-                GameUpdate();
+                    image = buttons[row, col].transform.GetChild(0).GetComponent<Image>();
+                    Debug.Log(buttons[row, col].name);
+                    gameManager.isClicked = true;
+                    GameState _gameState = new GameState(gameManager.isGameStarted, gameManager.turn, image);
+                    gameManager.turn = !gameManager.turn;
+                    GameUpdate();
+                }
             }
         }
     }
@@ -557,18 +581,21 @@ public class GridManager : MonoBehaviour
                                 {
                                     CheckSelectedColors();
 
-                                    buttons[b.row, b.col].image.color = Color.green;
+                                    if (gameManager.turn)
+                                    {
+                                        buttons[b.row, b.col].image.color = Color.green;
 
-                                    if (b.col < 4)
-                                        buttons[b.row, b.col + 1].image.color = Color.yellow;
-                                    if (b.col > 0)
-                                        buttons[b.row, b.col - 1].image.color = Color.yellow;
-                                    if (b.row < 4)
-                                        buttons[b.row + 1, b.col].image.color = Color.yellow;
-                                    if (b.row > 0)
-                                        buttons[b.row - 1, b.col].image.color = Color.yellow;
+                                        if (b.col < 4)
+                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
+                                        if (b.col > 0)
+                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
+                                        if (b.row < 4)
+                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
+                                        if (b.row > 0)
+                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
 
-                                    OnClickShift(b.row, b.col, true);
+                                        OnClickShift(b.row, b.col, true);
+                                    }
                                 });
 
                                 if (b.col < 4)
@@ -601,18 +628,21 @@ public class GridManager : MonoBehaviour
                                 {
                                     CheckSelectedColors();
 
-                                    buttons[b.row, b.col].image.color = Color.green;
+                                    if (!gameManager.turn)
+                                    {
+                                        buttons[b.row, b.col].image.color = Color.green;
 
-                                    if (b.col < 4)
-                                        buttons[b.row, b.col + 1].image.color = Color.yellow;
-                                    if (b.col > 0)
-                                        buttons[b.row, b.col - 1].image.color = Color.yellow;
-                                    if (b.row < 9)
-                                        buttons[b.row + 1, b.col].image.color = Color.yellow;
-                                    if (b.row > 5)
-                                        buttons[b.row - 1, b.col].image.color = Color.yellow;
+                                        if (b.col < 4)
+                                            buttons[b.row, b.col + 1].image.color = Color.yellow;
+                                        if (b.col > 0)
+                                            buttons[b.row, b.col - 1].image.color = Color.yellow;
+                                        if (b.row < 9)
+                                            buttons[b.row + 1, b.col].image.color = Color.yellow;
+                                        if (b.row > 5)
+                                            buttons[b.row - 1, b.col].image.color = Color.yellow;
 
-                                    OnClickShift(b.row, b.col, false);
+                                        OnClickShift(b.row, b.col, false);
+                                    }
                                 });
 
                                 if (b.col < 4)
@@ -633,7 +663,6 @@ public class GridManager : MonoBehaviour
 
     private void OnClickShift(int row, int col, bool value)//This method is to change the character position
     {
-        CheckSelectedColors();
         if (value)
         {
             if (col < 4)
@@ -736,6 +765,7 @@ public class GridManager : MonoBehaviour
 
     private void UpdateSpritesLocation(bool value, int r, int c, int r1, int c1)
     {
+        CheckSelectedColors();
         if (value)
         {
             ButtonPosition x = new ButtonPosition { row = r, col = c };

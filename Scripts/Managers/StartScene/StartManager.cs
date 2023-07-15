@@ -33,25 +33,28 @@ public class StartManager : MonoBehaviourPunCallbacks
         _uiManager.GetButton(keyvalue.PlayerVsPlayer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "PVP");
-            LoadScene("PvP_Scene");
+            LoadScene("PvP_Scene", false);
         });
         _uiManager.GetButton(keyvalue.PlayerVsComputer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "PVC");
-            LoadScene("PvComp_Scene");
+            LoadScene("PvComp_Scene", false);
         });
         _uiManager.GetButton(keyvalue.OnlinePlayerVsPlayer).onClick.AddListener(() =>
         {
             PlayerPrefs.SetString("GameMode", "OPVP");
             PhotonNetwork.ConnectUsingSettings();
             multiplayerConnectingPanel.SetActive(true);
-            //LoadScene("Online_PvP_Scene");
+            LoadScene("Online_PvP_Scene", true);
         });
     }
 
-    private void LoadScene(string _scene_Name)
+    private void LoadScene(string _scene_Name, bool pun)
     {
-        SceneManager.LoadScene(_scene_Name);
+        if (pun)
+            PhotonNetwork.LoadLevel(_scene_Name);
+        else
+            SceneManager.LoadScene(_scene_Name);
     }
 
     public override void OnConnectedToMaster()
