@@ -14,6 +14,8 @@ My exams will be ending on 9th or 10th of july after that  I can implement all t
 Majority functionalities are implemented some other functionalities are remaining that are mentioned above.
 
 I tried to make it bug free but may be some cases occurs of getting bugs.
+![Media Player 15-07-2023 18_11_20](https://github.com/DarshanDEV1/CatsAndDogs/assets/86543754/b871405a-20e4-4e69-a4f2-ec92657945d3)
+![Uploading Media Player 15-07-2023 18_11_02.png…]()
 
 # Steps_To_Play_The_Game
 
