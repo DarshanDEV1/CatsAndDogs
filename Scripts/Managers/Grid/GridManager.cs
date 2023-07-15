@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using UnityEditor;
+using Photon.Pun.Demo.Cockpit;
 
 public abstract class GameStateCall : GridManager
 {
@@ -572,7 +573,8 @@ public class GridManager : MonoBehaviour
                         foreach (ButtonPosition b in spriteButtonPlaces_One)
                         {
                             //Do Something
-                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                            if ((buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                                buttons[b.row, b.col].image.color != Color.yellow) &&
                                 buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().sprite != null)
                             {
                                 buttons[b.row, b.col].interactable = true; //Current Button
@@ -619,7 +621,8 @@ public class GridManager : MonoBehaviour
                         foreach (ButtonPosition b in spriteButtonPlaces_Two)
                         {
                             //Do Something
-                            if (buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                            if ((buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().color != Color.red &&
+                                buttons[b.row, b.col].image.color != Color.yellow) &&
                                 buttons[b.row, b.col].transform.GetChild(0).GetComponent<Image>().sprite != null)
                             {
                                 buttons[b.row, b.col].interactable = true; //Current Button
